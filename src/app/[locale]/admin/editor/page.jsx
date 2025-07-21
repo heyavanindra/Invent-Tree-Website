@@ -9,6 +9,9 @@ import { FaSpinner } from "react-icons/fa";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { blogPostSchema } from "../../../../schema/blog.schema";
 import { useRouter } from "next/navigation";
+import Popup from "reactjs-popup";
+import 'reactjs-popup/dist/index.css';
+
 
 export default function CreateBlogPage() {
   const {
@@ -94,10 +97,24 @@ export default function CreateBlogPage() {
   };
 
   return (
-    <div className="mx-auto mt-20 max-w-3xl px-4 sm:px-6 lg:px-8">
-      <h1 className="text-persian-green-800 dark:text-persian-green-200 mb-6 text-2xl font-bold">
-        Create New Blog
-      </h1>
+     <Popup
+              trigger={
+                <button className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Create a New Blog
+                </button>
+              }
+              modal
+              contentStyle={{
+                width: "60%",
+                maxHeight: "80vh",
+                overflow: "auto",
+                borderRadius: "10px",
+                padding: "20px",
+              }}
+            >
+              {(close) => (
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <h2 className="text-2xl font-semibold mb-4 text-center text-[#08807a]">Edit Project</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Title */}
@@ -255,5 +272,7 @@ export default function CreateBlogPage() {
         {errors && console.log(errors)}
       </form>
     </div>
+     )}
+            </Popup>
   );
 }

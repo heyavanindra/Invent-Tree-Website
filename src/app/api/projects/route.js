@@ -33,22 +33,16 @@ export async function GET(req) {
 
 
 export async function POST(req) {
-    await connectMongo();
+   await connectMongo();
+  const formData = await req.formData(); // ✅ real FormData
+  const imageFile = formData.get("image");
 
-    const validationResult = await validateFormData(req);
+  console.log("formData entries:");
+  for (let [key, val] of formData.entries()) {
+    console.log(`${key}:`, val);
+  }
 
-    if (validationResult.error) {
-        return NextResponse.json(
-            { error: validationResult.message },
-            { status: 400 }
-        );
-    }
-
-    const formData = validationResult.data;
-
-    const imageFile = formData.get("image");
-
-    let uploadedImageUrl = "";
+  let uploadedImageUrl = "";
 
     if (imageFile && imageFile.name) {
         const bytes = await imageFile.arrayBuffer();
@@ -112,24 +106,19 @@ export async function DELETE(req) {
 export async function PATCH(req) {
     await connectMongo();
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    console.log("this is id", id);
-    const validationResult = await validateFormData(req);
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+  console.log("this is id", id);
 
-    if (validationResult.error) {
-        return NextResponse.json(
-            { error: validationResult.message },
-            { status: 400 }
-        );
-    }
+  const formData = await req.formData(); // ✅ real FormData
+  const imageFile = formData.get("image");
 
-    const formData = validationResult.data;
-    const imageFile = formData.get("image");
+  console.log("formData entries:");
+  for (let [key, val] of formData.entries()) {
+    console.log(`${key}:`, val);
+  }
 
-    console.log(formData);
-
-    let uploadedImageUrl = "";
+  let uploadedImageUrl = "";
 
     // Upload image to Cloudinary if present
     if (imageFile && imageFile.name) {

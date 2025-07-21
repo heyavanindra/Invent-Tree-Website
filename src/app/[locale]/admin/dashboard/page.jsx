@@ -1,129 +1,96 @@
 "use client";
+import React from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { useEffect } from 'react';
+import { fetchServices, fetchProjects, fetchBlogs } from '../../../../lib/api'; // Adjust the import path as necessary
+const Page = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import Loading from "../../../../components/loading";
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.4,
-      type: "spring",
-    },
-  }),
-};
-
-const AdminDashboard = () => {
-  const router = useRouter();
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [services, setServices] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [blogs, setBlogs] = useState([]);
 
   useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const response = await axios.get("/api/blog");
-        setData(response.data.message);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-        console.log(data);
-      }
+    // Fetch data for services, projects, and blogs
+    const fetchData = async () => {
+      const servicesData = await fetchServices();
+      const projectsData = await fetchProjects();
+      const blogsData = await fetchBlogs();
+
+      setServices(servicesData);
+      setProjects(projectsData);
+      setBlogs(blogsData);
     };
-    getUserData();
+
+    fetchData();
   }, []);
 
-  const handleDeleteBlog = async (id) => {
-    setIsDeleting(true);
-    try {
-      const response = await axios.delete(`/api/blog?id=${id}`);
-      if (response.status === 200) {
-        setIsDeleting(false);
-      } else {
-        console.error(response.data);
-        setIsDeleting(false);
-      }
-    } catch (error) {
-      console.error(error)
-    }finally{
-      setIsDeleting(false)
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-xl">
-        <Loading></Loading>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-10 dark:bg-neutral-900 dark:text-neutral-300">
-      <h1 className="mb-10 text-center text-4xl font-bold">Blog Articles</h1>
-      <div className="mx-auto max-w-4xl space-y-6">
-        {data.map((item, i) => (
-          <motion.div
-            key={item._id}
-            custom={i}
-            initial="hidden"
-            animate="visible"
-            variants={cardVariants}
-            className="flex flex-col gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-lg transition-all duration-100 ease-in-out hover:scale-103 active:scale-100 md:flex-row"
-          >
-            {item.image && (
-              <img
-                src={item.image}
-                alt={item.title || "Blog Image"}
-                className="h-40 w-full rounded-xl object-cover md:w-52"
-              />
-            )}
-            <div className="flex flex-1 flex-col justify-between">
-              <div>
-                <h2 className="line-clamp-2 text-xl font-semibold text-gray-800 md:text-2xl">
-                  {item.title || item.slug}
-                </h2>
-                <p className="mt-2 line-clamp-3 text-sm text-gray-600">
-                  {item.excerpt?.plainText ||
-                    item.content ||
-                    "No description available."}
-                </p>
+    <div className="flex h-screen bg-gray-100">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        {/* Header */}
+
+        {/* Dashboard Content */}
+        <main className="p-4 sm:p-6">
+          {activeTab === 'dashboard' && (
+            <div className='space-y-6 px-10  h-[90vh] flex flex-col justify-center '>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 gap-5 mt-10 sm:grid-cols-2 lg:grid-cols-4 ">
+                  <div className="p-5 bg-white rounded-lg shadow">
+                    <p className="text-sm font-medium text-gray-500 truncate">Total Services</p>
+                    <p className="mt-1 text-3xl font-semibold text-gray-900">{services?.message?.length || 0}</p>
+                  </div>
+                  <div className="p-5 bg-white rounded-lg shadow">
+                    <p className="text-sm font-medium text-gray-500 truncate">Active Projects</p>
+                    <p className="mt-1 text-3xl font-semibold text-gray-900">{projects?.message?.length || 0}</p>
+                  </div>
+                  <div className="p-5 bg-white rounded-lg shadow">
+                    <p className="text-sm font-medium text-gray-500 truncate">Total Blogs</p>
+                    <p className="mt-1 text-3xl font-semibold text-gray-900">{blogs?.message?.length || 0}</p>
+                  </div>
               </div>
-              <div className="mt-4 text-sm text-gray-500">
-                Category:{" "}
-                <span className="font-medium">
-                  {item.category || "Uncategorized"}
-                </span>
+
+              {/* Recent Activity */}
+              <div className="mt-6 bg-white rounded-lg shadow">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-lg font-medium text-gray-900">Create Something</h2>
+                </div>
+                <ul className="divide-y divide-gray-200">
+                  <li className="px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-indigo-600">Create a New Blog Post</p>
+                      </div>
+                      <Link href={"/"} className="text-sm text-gray-500  hover:bg-slate-300 px-4 py-2 rounded-xl">Add</Link>
+                    </div>
+                  </li>
+                  <li className="px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-indigo-600">Add a New Project</p>
+                      </div>
+                      <Link href={"/"} className="text-sm text-gray-500 hover:bg-slate-300 px-4 py-2 rounded-xl">Add</Link>
+                    </div>
+                  </li>
+                  <li className="px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-indigo-600">Add a New Service</p>
+                      </div>
+                      <Link href={"/"} className="text-sm text-gray-500  hover:bg-slate-300 px-4 py-2 rounded-xl">Add</Link>
+                    </div>
+                  </li>
+                </ul>
               </div>
-              <button
-                className="cursor-pointer bg-blue-400"
-                onClick={() => {
-                  router.push(`/en/admin/blogs/${item.slug}`);
-                }}
-              >
-                Edit
-              </button>
-              <button
-                className="cursor-pointer bg-blue-400"
-                onClick={() => {
-                  handleDeleteBlog(item._id);
-                }}
-              >
-                {isDeleting ? "Deleting" : "Delete"}
-              </button>
             </div>
-          </motion.div>
-        ))}
+          )}
+
+        </main>
       </div>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default Page;
